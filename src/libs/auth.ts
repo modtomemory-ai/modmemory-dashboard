@@ -25,45 +25,25 @@ export const authOptions: NextAuthOptions = {
        * username or password attributes manually in following credentials object.
        */
       credentials: {},
-      async authorize(credentials) {
-        /*
-         * You need to provide your own logic here that takes the credentials submitted and returns either
-         * an object representing a user or value that is false/null if the credentials are invalid.
-         * For e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
-         * You can also use the `req` object to obtain additional parameters (i.e., the request IP address)
-         */
-        const { email, password } = credentials as { email: string; password: string }
+    async authorize(credentials) {
+  const { email, password } = credentials as {
+    email: string
+    password: string
+  }
 
-        try {
-          // ** Login API Call to match the user credentials and receive user data in response along with his role
-          const res = await fetch(`${process.env.API_URL}/login`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-          })
+  // SIMPLE LOCAL LOGIN
+  if (email === 'admin@materio.com' && password === 'admin') {
+    return {
+      id: '1',
+      name: 'Admin',
+      email: 'admin@materio.com'
+    }
+  }
 
-          const data = await res.json()
+  // Invalid login
+  return null
+}
 
-          if (res.status === 401) {
-            throw new Error(JSON.stringify(data))
-          }
-
-          if (res.status === 200) {
-            /*
-             * Please unset all the sensitive information of the user either from API response or before returning
-             * user data below. Below return statement will set the user object in the token and the same is set in
-             * the session which will be accessible all over the app.
-             */
-            return data
-          }
-
-          return null
-        } catch (e: any) {
-          throw new Error(e.message)
-        }
-      }
     }),
 
     GoogleProvider({
